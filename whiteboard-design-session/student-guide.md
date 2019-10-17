@@ -27,7 +27,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
 
 ## Abstract and learning objectives
 
-In this whiteboard design session, you will work with a group to analyze customer requirements and design a solution to modernize the Contoso Sports League Association's (CSLA) e-commerce and back-end services. The goal is to use Azure platform-as-a-service (PaaS) services for the public-facing and back-end websites, while providing a way for the on-premises components to securely communicate with these services. You will also design fault-tolerance and a regional failover plan of the Azure components.
+In this whiteboard design session, you will work with a group to analyze customer requirements and design a solution to modernize the customer's e-commerce website and backend services. The goal is to use Azure platform-as-a-service (PaaS) services for the public-facing and backend websites while providing a way for the on-premises components to communicate with these services securely. You will also design fault-tolerance and a regional failover plan of the Azure components.
 
 By the end of this whiteboard design session, you will have a better understanding of the key processes used to architect Azure solutions from a given set of customer requirements, with a focus on delivering on the Azure value proposition.
 
@@ -47,15 +47,15 @@ Directions: With all participants in the session, the facilitator/SME presents a
 
 ### Customer situation
 
-The Contoso Sports League Association (CSLA) is one of the world's largest sports franchises. They have over 100 championships in their history and a huge, passionate fan base. They run a highly successful e-commerce website that sells merchandise to their legions of sports fans. The website is built using ASP.NET and is currently hosted in a co-location facility near their corporate headquarters.
+The Contoso Sports League Association (CSLA) is one of the world's largest sports franchises. They have over 100 championships in their history and a vast, passionate fan base. They run a highly successful e-commerce website that sells merchandise to their legions of sports fans. The site is built using ASP.NET and hosted in a co-location facility near their corporate headquarters.
 
-They accept payment by credit card and owing to their high annual volume (in the tens of millions, processing about 50K per day) of transactions, need to ensure that they are Payment Card Industry Data Security Standards (PCI DSS) Level 1 compliant. Their website hosts the shopping cart and checkout process, but they defer the credit card authorization and capture responsibilities of the credit card processing to a third-party payment gateway. This payment gateway provides a web application programming interface (API) that is invoked over Transport Layer Security (TLS) from within their web application. The API call includes the credit card holder data (name, number, and so on) and returns a status indicating a success or failure in authorizing and capturing payment against the credit card. It is called after the customer clicks checkout, as a part of processing the order. They currently store their customer and profile data in SQL Server 2014.
+They accept payment by credit card and owing to their high annual volume (in the tens of millions, processing about 50K per day) of transactions, need to ensure that they are Payment Card Industry Data Security Standards (PCI DSS) Level 1 compliant. Their website hosts the shopping cart and checkout process, but they defer the credit card authorization and capture responsibilities to a third-party payment gateway. This payment gateway provides a web application programming interface (API) that is invoked over Transport Layer Security (TLS) from within their web application. The API call includes the credit cardholder data (name, number, and so on) and returns a status indicating success or failure in authorizing and capturing payment against the credit card. It is called after the customer clicks checkout, as a part of processing the order. They currently store their customer and profile data in SQL Server 2014.
 
-In addition to the public facing e-commerce website, they have a backend website that supports their call center. Call center employees use this admin website to view customer orders. Customers can call in to the call center to place orders and pay for orders with their credit cards by phone.
+In addition to the public-facing e-commerce website, they have a backend website that supports their call center. Call center employees use this admin website to view customer orders. Customers can call into the call center to place orders and pay for orders with their credit cards by phone.
 
-They have reached a point where managing their server infrastructure is becoming a real challenge. Contoso wants to understand more about platform as a service (PaaS) solutions available in Azure. They wonder if PaaS could help them focus their efforts more on the core business value rather than infrastructure. They have observed that Azure has received PCI compliance certification and are interested in moving their solution to Azure. "We're finding that with every upgrade, we're spending more and more engineering time on infrastructure and less on the experience that matters most to our fan base," says Miles Strom, Chief Executive Officer (CEO) of Contoso Sports League Association, "we need to rebalance those efforts."
+They have reached a point where managing their server infrastructure is becoming a real challenge. Contoso wants to understand more about platform-as-a-service (PaaS) solutions available in Azure. They wonder if PaaS could help them focus their efforts more on the core business value rather than infrastructure. They have observed that Azure has received PCI compliance certification and are interested in moving their solution to Azure. "We're finding that with every upgrade, we're spending more and more engineering time on infrastructure and less on the experience that matters most to our fan base," says Miles Strom, Chief Executive Officer (CEO) of Contoso Sports League Association, "we need to rebalance those efforts."
 
-One example is in how they manage the usernames and passwords for call center operators and support staff, as applied to the call center admin website. Today they have a homegrown solution that stores usernames and passwords in the same database used for storing merchandise information. They have experimented with other third-party solutions in the past, and their employees found it jarring to see another company's logo displayed when logging into their own call center website. In creating their identity solution, they want to ensure they can brand the login screens with their own logo. Additionally, Contoso is concerned about hackers from foreign countries/regions gaining access to the administrator site. Before they choose an identity solution, they would like to see how it indicates such attempts.
+One example is in how they manage the usernames and passwords for call center operators and support staff, as applied to the call center admin website. Today they have a homegrown solution that stores usernames and passwords in the same database used for storing merchandise information. They have experimented with other third-party solutions in the past. Their employees found it jarring to see another company's logo displayed when logging into their internal call center website. In creating their identity solution, they want to ensure they can brand the login screens with their logo. Additionally, Contoso is concerned about hackers from foreign countries/regions gaining access to the administrator site. Before they choose an identity solution, they would like to see how it indicates such attempts.
 
 There is one architectural enhancement Contoso would like to make in the transition to a PaaS solution. When a visitor loads the home page, it gets the list of featured products on offer (consisting of the product image, title, and URL) from the Offers service. The home page does it using a client-side GET request against an ASP.NET Web API 2 service that is executed as the page loads in the browser. Contoso anticipates growing the functionality of this service and would like to scale it independently of the website.
 
@@ -69,23 +69,23 @@ There is one architectural enhancement Contoso would like to make in the transit
 
 4. Provide a regional database failover plan that will automatically initiate the failover to another region, allowing their various web applications and other hosted services to roll over to a synchronized database.
 
-5. Want to take advantage of serverless compute resource available in Azure to enhance their existing e-commerce site.
+5. Want to take advantage of serverless compute resources available in Azure to enhance their existing e-commerce site.
 
 ### Customer objections
 
-1. It is not clear to us from the Azure Trust Center just how Azure helps our solution become PCI compliant.
+1. It is not clear to us from the Azure Trust Center how Azure helps our solution become PCI compliant.
 
 2. Can we provide a solution that scales to meet our public demand, but is also secure for use by our call center and warehouse?
 
-3. Our PCI compliance requires us to have a quarterly audit and to conduct occasional penetration tests. Is it supported by Azure?
+3. Our PCI compliance requires us to have a quarterly audit and to conduct occasional penetration tests. Does Azure support it?
 
-4. Our previous infrastructure did not have great performance monitoring of our websites. What options would you recommend we investigate that would work with our web apps in Azure?
+4. Our previous infrastructure did not have adequate performance monitoring of our websites. What options would you recommend we investigate that would work with our web apps in Azure?
 
 5. Is it possible to automatically failover the database without having to update connection settings in our applications?
 
 ### Infographic for common scenarios
 
-![This diagram is of a Common scenario for an E-Commerce Website. The diagram begins with an end user, includes a services tier, internet tier, and data tier, and ends at an Enterprise. The diagram also includes Microsoft Azure, and Azure Virtual Network.](media/image2.png 'Common scenario for an E-Commerce Website')
+![This diagram is of a Common scenario for an E-Commerce Website. The diagram begins with an end-user, includes a services tier, internet tier, and data tier, and ends at an Enterprise. The diagram also includes Microsoft Azure and Azure Virtual Network.](media/image2.png "Common scenario for an E-Commerce Website")
 
 ## Step 2: Design a proof of concept solution
 
@@ -112,7 +112,7 @@ Directions: With all participants at your table, respond to the following questi
 
 *Notifications*
 
-1. How would you recommend CSLA manage notifying customers that their has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
+1. How would you recommend CSLA manage notifying customers that their order has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
 
 *Offers service*
 
@@ -122,7 +122,7 @@ Directions: With all participants at your table, respond to the following questi
 
 1. How would you implement high availability for the orders database to guard against regional data center outages? Be specific on how you would configure SQL Database.
 
-2. How long would a failover take and how much data could be lost, in terms of time?
+2. How long would a failover take, and how much data could be lost, in terms of time?
 
 *Access control*
 

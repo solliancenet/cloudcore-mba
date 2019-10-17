@@ -138,7 +138,7 @@ When participants are doing activities, you can **look ahead to refresh your mem
 
 ### Abstract and learning objectives
 
-In this whiteboard design session, you will work with a group to analyze customer requirements and design a solution to modernize the Contoso Sports League Association's (CSLA) e-commerce and back-end services. The goal is to use Azure platform-as-a-service (PaaS) services for the public-facing and back-end websites, while providing a way for the on-premises components to securely communicate with these services. You will also design fault-tolerance and a regional failover plan of the Azure components.
+In this whiteboard design session, you will work with a group to analyze customer requirements and design a solution to modernize the customer's e-commerce website and backend services. The goal is to use Azure platform-as-a-service (PaaS) services for the public-facing and backend websites while providing a way for the on-premises components to communicate with these services securely. You will also design fault-tolerance and a regional failover plan of the Azure components.
 
 By the end of this whiteboard design session, you will have a better understanding of the key processes used to architect Azure solutions from a given set of customer requirements, with a focus on delivering on the Azure value proposition.
 
@@ -158,15 +158,15 @@ Directions: With all participants in the session, the facilitator/SME presents a
 
 #### Customer situation
 
-The Contoso Sports League Association (CSLA) is one of the world's largest sports franchises. They have over 100 championships in their history and a huge, passionate fan base. They run a highly successful e-commerce website that sells merchandise to their legions of sports fans. The website is built using ASP.NET and is currently hosted in a co-location facility near their corporate headquarters.
+The Contoso Sports League Association (CSLA) is one of the world's largest sports franchises. They have over 100 championships in their history and a vast, passionate fan base. They run a highly successful e-commerce website that sells merchandise to their legions of sports fans. The site is built using ASP.NET and hosted in a co-location facility near their corporate headquarters.
 
-They accept payment by credit card and owing to their high annual volume (in the tens of millions, processing about 50K per day) of transactions, need to ensure that they are Payment Card Industry Data Security Standards (PCI DSS) Level 1 compliant. Their website hosts the shopping cart and checkout process, but they defer the credit card authorization and capture responsibilities of the credit card processing to a third-party payment gateway. This payment gateway provides a web application programming interface (API) that is invoked over Transport Layer Security (TLS) from within their web application. The API call includes the credit card holder data (name, number, and so on) and returns a status indicating a success or failure in authorizing and capturing payment against the credit card. It is called after the customer clicks checkout, as a part of processing the order. They currently store their customer and profile data in SQL Server 2014.
+They accept payment by credit card and owing to their high annual volume (in the tens of millions, processing about 50K per day) of transactions, need to ensure that they are Payment Card Industry Data Security Standards (PCI DSS) Level 1 compliant. Their website hosts the shopping cart and checkout process, but they defer the credit card authorization and capture responsibilities to a third-party payment gateway. This payment gateway provides a web application programming interface (API) that is invoked over Transport Layer Security (TLS) from within their web application. The API call includes the credit cardholder data (name, number, and so on) and returns a status indicating success or failure in authorizing and capturing payment against the credit card. It is called after the customer clicks checkout, as a part of processing the order. They currently store their customer and profile data in SQL Server 2014.
 
-In addition to the public facing e-commerce website, they have a backend website that supports their call center. Call center employees use this admin website to view customer orders. Customers can call in to the call center to place orders and pay for orders with their credit cards by phone.
+In addition to the public-facing e-commerce website, they have a backend website that supports their call center. Call center employees use this admin website to view customer orders. Customers can call into the call center to place orders and pay for orders with their credit cards by phone.
 
-They have reached a point where managing their server infrastructure is becoming a real challenge. Contoso wants to understand more about platform as a service (PaaS) solutions available in Azure. They wonder if PaaS could help them focus their efforts more on the core business value rather than infrastructure. They have observed that Azure has received PCI compliance certification and are interested in moving their solution to Azure. "We're finding that with every upgrade, we're spending more and more engineering time on infrastructure and less on the experience that matters most to our fan base," says Miles Strom, Chief Executive Officer (CEO) of Contoso Sports League Association, "we need to rebalance those efforts."
+They have reached a point where managing their server infrastructure is becoming a real challenge. Contoso wants to understand more about platform-as-a-service (PaaS) solutions available in Azure. They wonder if PaaS could help them focus their efforts more on the core business value rather than infrastructure. They have observed that Azure has received PCI compliance certification and are interested in moving their solution to Azure. "We're finding that with every upgrade, we're spending more and more engineering time on infrastructure and less on the experience that matters most to our fan base," says Miles Strom, Chief Executive Officer (CEO) of Contoso Sports League Association, "we need to rebalance those efforts."
 
-One example is in how they manage the usernames and passwords for call center operators and support staff, as applied to the call center admin website. Today they have a homegrown solution that stores usernames and passwords in the same database used for storing merchandise information. They have experimented with other third-party solutions in the past, and their employees found it jarring to see another company's logo displayed when logging into their own call center website. In creating their identity solution, they want to ensure they can brand the login screens with their own logo. Additionally, Contoso is concerned about hackers from foreign countries/regions gaining access to the administrator site. Before they choose an identity solution, they would like to see how it indicates such attempts.
+One example is in how they manage the usernames and passwords for call center operators and support staff, as applied to the call center admin website. Today they have a homegrown solution that stores usernames and passwords in the same database used for storing merchandise information. They have experimented with other third-party solutions in the past. Their employees found it jarring to see another company's logo displayed when logging into their internal call center website. In creating their identity solution, they want to ensure they can brand the login screens with their logo. Additionally, Contoso is concerned about hackers from foreign countries/regions gaining access to the administrator site. Before they choose an identity solution, they would like to see how it indicates such attempts.
 
 There is one architectural enhancement Contoso would like to make in the transition to a PaaS solution. When a visitor loads the home page, it gets the list of featured products on offer (consisting of the product image, title, and URL) from the Offers service. The home page does it using a client-side GET request against an ASP.NET Web API 2 service that is executed as the page loads in the browser. Contoso anticipates growing the functionality of this service and would like to scale it independently of the website.
 
@@ -180,23 +180,23 @@ There is one architectural enhancement Contoso would like to make in the transit
 
 4. Provide a regional database failover plan that will automatically initiate the failover to another region, allowing their various web applications and other hosted services to roll over to a synchronized database.
 
-5. Want to take advantage of serverless compute resource available in Azure to enhance their existing e-commerce site.
+5. Want to take advantage of serverless compute resources available in Azure to enhance their existing e-commerce site.
 
 #### Customer objections
 
-1. It is not clear to us from the Azure Trust Center just how Azure helps our solution become PCI compliant.
+1. It is not clear to us from the Azure Trust Center how Azure helps our solution become PCI compliant.
 
 2. Can we provide a solution that scales to meet our public demand, but is also secure for use by our call center and warehouse?
 
-3. Our PCI compliance requires us to have a quarterly audit and to conduct occasional penetration tests. Is it supported by Azure?
+3. Our PCI compliance requires us to have a quarterly audit and to conduct occasional penetration tests. Does Azure support it?
 
-4. Our previous infrastructure did not have great performance monitoring of our websites. What options would you recommend we investigate that would work with our web apps in Azure?
+4. Our previous infrastructure did not have adequate performance monitoring of our websites. What options would you recommend we investigate that would work with our web apps in Azure?
 
 5. Is it possible to automatically failover the database without having to update connection settings in our applications?
 
 #### Infographic for common scenarios
 
-![This diagram is of a Common scenario for an E-Commerce Website. The diagram begins with an end user, includes a services tier, internet tier, and data tier, and ends at an Enterprise. The diagram also includes Microsoft Azure, and Azure Virtual Network.](media/image2.png "Common scenario for an E-Commerce Website")
+![This diagram is of a Common scenario for an E-Commerce Website. The diagram begins with an end-user, includes a services tier, internet tier, and data tier, and ends at an Enterprise. The diagram also includes Microsoft Azure and Azure Virtual Network.](media/image2.png "Common scenario for an E-Commerce Website")
 
 ### Step 2: Design a proof of concept solution
 
@@ -223,7 +223,7 @@ Directions: With all participants at your table, respond to the following questi
 
 *Notifications*
 
-1. How would you recommend CSLA manage notifying customers that their has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
+1. How would you recommend CSLA manage notifying customers that their order has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
 
 *Offers service*
 
@@ -233,7 +233,7 @@ Directions: With all participants at your table, respond to the following questi
 
 1. How would you implement high availability for the orders database to guard against regional data center outages? Be specific on how you would configure SQL Database.
 
-2. How long would a failover take and how much data could be lost, in terms of time?
+2. How long would a failover take, and how much data could be lost, in terms of time?
 
 *Access control*
 
@@ -345,7 +345,7 @@ The primary audience are the business and technology decision makers. Usually we
 
 *Notifications*
 
-1. How would you recommend CSLA manage notifying customers that their has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
+1. How would you recommend CSLA manage notifying customers that their order has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
 
     Contoso can implement a Logic App to notify customers of their order status.
 
@@ -357,7 +357,7 @@ The primary audience are the business and technology decision makers. Usually we
 
 1. Would you propose Contoso use the Azure App Service API app to meet their requirements for the Offers service?
 
-    Contoso could meet their requirement of scaling the Offers API independently from the main website by separating it out from the website project into its own Web API project and deploying that project to an Azure App Service API App.
+    Contoso could meet its requirement of scaling the Offers API independently from the main website by separating it from the website project into its own Web API project and deploying that project to an Azure App Service API App.
 
 *Geo-resiliency*
 
@@ -365,15 +365,15 @@ The primary audience are the business and technology decision makers. Usually we
 
     Azure SQL Database auto-failover groups (in-preview) is a SQL Database feature designed to automatically manage geo-replication relationship, connectivity, and failover at scale. With it, the customers gain the ability to automatically recover multiple related databases in the secondary region after catastrophic regional failures or other unplanned events that result in full or partial loss of the SQL Database service's availability in the primary region. Additionally, they can use the readable secondary databases to offload read-only workloads. Because auto-failover groups involve multiple databases, they must be configured on the primary server. Both primary and secondary servers must be in the same subscription. Auto-failover groups support replication of all databases in the group to only one secondary server in a different region. Active geo-replication, without auto-failover groups, allows up to four secondaries in any region.
 
-    Finally, deploy copies of the App Services to the backup regions. You will have to consider a process of how you update these instances when the primary region gets updates. These can initially be deployed to resources with minimal scale out instance sizes, and increased when failover event occurs.
+    Finally, deploy copies of the App Services to the backup regions. You will have to consider a process of how you update these instances when the primary region gets updates. These can initially be deployed to resources with minimal scale-out instance sizes and increased when a failover event occurs.
 
-2. How long would a failover take and how much data could be lost, in terms of time?
+2. How long would a failover take, and how much data could be lost, in terms of time?
 
-    The amount of time a failover takes is the Recovery Time Objective (RTO) and the amount of data loss that might transpire due to any replication latency is the Recovery Point Objective (RPO).
+    The amount of time a failover takes is the Recovery Time Objective (RTO), and the amount of data loss that might transpire due to any replication latency is the Recovery Point Objective (RPO).
 
-    For SQL Database on the Premium Tier, the RTO is less than 30 seconds and the RPO is less than 5 seconds.
+    For SQL Database on the Premium Tier, the RTO is less than 30 seconds, and the RPO is less than 5 seconds.
 
-    For Azure Storage, the RTO is about 24 hours and the RPO is typically less than 15 minutes, although this has no explicit SLA. Given the potentially long RTO and RPO for Azure Storage, Contoso might consider using RA-GRS storage and when a failover happens use the RA-GRS for read and a separate storage account for the writing of new files.
+    For Azure Storage, the RTO is about 24 hours, and the RPO is typically less than 15 minutes, although this has no explicit SLA. Given the potentially long RTO and RPO for Azure Storage, Contoso might consider using RA-GRS storage, and when a failover happens use the RA-GRS for read and a separate storage account for the writing of new files.
 
 *Access control*
 
@@ -383,7 +383,7 @@ The primary audience are the business and technology decision makers. Usually we
 
     ![Use the Azure Active Directory Status section to configure custom branding for your company.](media/image4.png "Status section")
 
-    From there they specify images for the banner logo, a tile logo, and large illustration, and provide some custom text.
+    From there, they specify images for the banner logo, a tile logo, and a large illustration, and provide some custom text.
 
     ![In the Configure company branding blade, select a file to use as the large image that displays to the left of the custom login form.](media/image5.png "Configure company branding blade")
 
@@ -391,7 +391,7 @@ The primary audience are the business and technology decision makers. Usually we
 
     ![Screenshot of the Contoso sign-in webpage.](media/image6.png "Contoso sign-in webpage")
 
-    With respect to addressing Contoso's concerns over foreign hackers, Azure Active Directory can help by identifying logins from multiple geographic locations by using the report "Sign ins from multiple geographies." To demonstrate the function of it to Contoso, one approach to accomplish a login from a foreign IP is to spin up a virtual machine in Azure in a foreign geography, remote desktop into it, open the browser, and navigate to the Contoso admin site and log in. Then log in from a local machine at the same time. Within an hour or two the suspicious login would be listed in the report.
+    With respect to addressing Contoso's concerns over foreign hackers, Azure Active Directory can help by identifying logins from multiple geographic locations by using the report "Sign ins from multiple geographies." To demonstrate the function of it to Contoso, one approach to accomplish a login from a foreign IP is to spin up a virtual machine in Azure in a foreign geography, remote desktop into it, open the browser, and navigate to the Contoso admin site and log in. Then log in from a local machine at the same time. Within an hour or two, the suspicious login would be listed in the report.
 
     Provided that the call center administrator website is deployed to a web app and that currently anyone listed as a user in Azure Active Directory is a user who should have access to the call center website, since the case study does not stipulate any other more granular requirements, the setup for integrating Azure Active Directory access control requires no code on the part of Contoso, just configuration. This configuration is accomplished using the Azure portal (at <https://portal.azure.com>), navigating to the web app, and on the Settings blade selecting Authentication/Authorization. Then in the Authentication/Authorization blade, choose Login with Azure Active Directory, and then configure the Azure Active Directory authentication provider to create a new application in AAD or to use an existing application.
 
@@ -405,7 +405,7 @@ The primary audience are the business and technology decision makers. Usually we
 
     While web apps are certified as PCI compliant, they are not immediately PCI compliant when used by the customer. The PCI requirements 1.2.1, 1.3.3, and 1.3.5 require restricting outbound access to only that which is necessary for the cardholder environment. In the case of CSLA, it means that the only outbound communication allowed should be to Azure (for monitoring) and to the payment gateway. Web apps in the Standard Tier have no mechanism for restricting the outbound traffic.
 
-    To remedy this, the web and API App Services should be hosted within an App Service Environment (ASE), using Isolated Tiers. ASE v2 is an App Service feature that provides a fully isolated and dedicated environment for securely running App Service apps at high scale. The ASE itself provides a hosting infrastructure that is deployed within a subnet of a Virtual Network (VNET). The ASE exposes only an Internal Load Balancer (ILB) endpoint for access to the App Service instances it hosts. Then, an Application Gateway of the Web Application Firewall (WAF) SKU should be deployed between the public IP address used by Internet clients to access the website and the ILB ASE endpoint. The ASE and the Application Gateway are deployed to two different subnets. Network Security Groups (NSG) are configured so that the subnet that contains the ASE only allows access from the subnet which contains the Application Gateway.
+    To remedy this, the web and API App Services should be hosted within an App Service Environment (ASE), using Isolated Tiers. ASE v2 is an App Service feature that provides a fully isolated and dedicated environment for securely running App Service apps at high scale. The ASE itself provides a hosting infrastructure that is deployed within a subnet of a Virtual Network (VNET). The ASE exposes only an Internal Load Balancer (ILB) endpoint for access to the App Service instances it hosts. Then, an Application Gateway of the Web Application Firewall (WAF) SKU should be deployed between the public IP address used by Internet clients to access the website and the ILB ASE endpoint. The ASE and the Application Gateway are deployed to two different subnets. Network Security Groups (NSG) are configured so that the subnet that contains the ASE only allows access from the subnet that contains the Application Gateway.
 
     By structuring the web app so all it does it handle the e-commerce transaction, you would meet the server specialization requirement. By capitalizing on web apps, you are inherently addressing the patching requirement since Azure handles that for you (with the exception of any custom code or libraries your application may use).
 
@@ -413,15 +413,15 @@ The primary audience are the business and technology decision makers. Usually we
 
 ## Checklist of preferred objection handling
 
-1. It is not clear to us from the Azure Trust Center just how Azure helps our solution become PCI compliant.
+1. It is not clear to us from the Azure Trust Center how Azure helps our solution become PCI compliant.
 
-    The Azure Trust Center helps you understand what Azure services have been certified for PCI compliance. For example, the services with which you could build a PCI compliant solution, but it does not describe how you build a PCI compliant solution on Azure. To fully accomplish a PCI compliant solution, you must address the requirements of PCI according to how you are handling cardholder data and the scope of your services. In many cases, Azure's PCI compliance attestations will be enough to satisfy aspects of PCI compliance for your solution, but there are at minimum some items which you must handle as a part of building your application, it is up to you to define and enforce secure password policies.
+    The Azure Trust Center helps you understand what Azure services have been certified for PCI compliance. For example, the services with which you could build a PCI compliant solution, but it does not describe how you build a PCI compliant solution on Azure. To fully accomplish a PCI compliant solution, you must address the requirements of PCI according to how you are handling cardholder data and the scope of your services. In many cases, Azure's PCI compliance attestations will be enough to satisfy aspects of PCI compliance for your solution, but there are at minimum some items which you must handle as a part of building your application. It is up to you to define and enforce secure password policies.
 
 2. Can we provide a solution that scales to meet our public demand, but is also secure for use by our call center and warehouse?
 
     Yes. Azure can provide a solution that is both scalable and secure.
 
-3. Our PCI compliance requires us to have a quarterly audit and to conduct occasional penetration tests. Is this supported by Azure?
+3. Our PCI compliance requires us to have a quarterly audit and to conduct occasional penetration tests. Does Azure support it?
 
     Although prior approval is not required, you may still formally document upcoming penetration testing engagements against Azure by filling out the Azure Service Penetration Testing Notification Form (<https://portal.msrc.microsoft.com/en-us/engage/pentest>).
 
@@ -430,13 +430,13 @@ The primary audience are the business and technology decision makers. Usually we
 
     Microsoft independent audits and certifications are shared with customers in lieu of individual customer audits. These certifications and attestations accurately represent how we obtain and meet our security and compliance objectives, and serve as a practical mechanism to validate our promises for all customers. Allowing potentially thousands of customers to audit our services would not be a scalable practice and might compromise security and privacy. Our independent third-party validation program includes audits that are conducted on an annual basis to provide verification of Azure security controls.
 
-4. Our previous infrastructure did not have great performance monitoring of our websites. What options would you recommend we investigate that would work with our web apps in Azure?
+4. Our previous infrastructure did not have adequate performance monitoring of our websites. What options would you recommend we investigate that would work with our web apps in Azure?
 
     Web apps in Azure include first-class support for both Microsoft Application Insights and NewRelic Application Performance Monitoring, both of which enable you to collect performance telemetry from your web apps as they are running. You can view and analyze traces from both server-side and browser-side telemetry, diagnose errors, and set alerts from within the Azure Portal. Contoso can also capitalize on Log Analytics, a feature of Microsoft Operations Management Suite, by having the Application Insights logs or the Web App Diagnostic logs pushed to a Storage Account and then picked up and made searchable using the Custom Log. Alternately, they can also push their New Relic logs into Log Analytics, as well giving them a single pane of glass to do all of their monitoring through Operations Management Suite.
 
 5. Is it possible to automatically failover the database without having to update connection settings in our applications?
 
-    Yes. Using SQL Server auto-failover groups will result in the database automatically failing over in the event of a regional outage. Applications connecting the to failover group should be configured to point to one of the listener endpoints of the failover group. If they are configured in this manner, they will continue to connect to whichever database server is set as the primary, without any need to update the application connection settings.
+    Yes. Using SQL Server auto-failover groups will result in the database automatically failing over in the event of a regional outage. Applications connecting to the failover group should be configured to point to one of the listener endpoints of the failover group. If they are configured in this manner, they will continue to connect to whichever database server is set as the primary, without any need to update the application connection settings.
 
 ## Customer quote (to be read back to the attendees at the end)
 
