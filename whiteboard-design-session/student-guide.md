@@ -22,6 +22,9 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Customer objections](#customer-objections)
     - [Infographic for common scenarios](#infographic-for-common-scenarios)
   - [Step 2: Design a proof of concept solution](#step-2-design-a-proof-of-concept-solution)
+    - [Business needs](#business-needs)
+    - [Design](#design)
+    - [Address customer objections](#address-customer-objections)
   - [Step 3: Present the solution](#step-3-present-the-solution)
   - [Additional references](#additional-references)
 
@@ -95,42 +98,58 @@ Design a solution and prepare to present the solution to the target customer aud
 
 Timeframe: 60 minutes
 
-**Business needs**
+### Business needs
 
 Directions:  With all participants at your table, answer the following questions and list the answers on a flip chart:
 
 1. Who should you present this solution to? Who is your target customer audience? Who are the decision makers?
 2. What customer business needs do you need to address with your solution?
 
-**Design**
+### Design
 
 Directions: With all participants at your table, respond to the following questions on a flip chart:
 
 *High-level architecture*
 
-1. Without getting into the details, diagram your initial vision for handling the top-level requirements for the e-commerce website, call center website, and inventory lookup process. You will refine this diagram as you proceed.
+Microsoft CSAs have provided the following high-level solution architecture diagram. Take some time to review the diagram and associated description before moving on to the questions below.
+
+![A diagram that depicts the various Azure PaaS services for the solution. Azure AD Org is used for authentication to the call center app. Azure AD B2C for authentication is used for authentication to the client app. SQL Database for the backend customer data. Azure App Services for the web and API apps. Order processing includes using Functions, Logic Apps, Queues, and Storage. Azure App Insights provides telemetry capture capabilities.](media/solution-architecture.png "Solution Architecture Diagram")
+
+From a high-level, the customer's e-commerce and call center websites are hosted using Web Apps. The App Services are inside of an App Service Environment, which provides the necessary controls to ensure PCI compliance. Each of the public websites is secured using Azure Active Directory (Azure AD). The Offers and Payment Gateway APIs are running in API Apps. Order processing is implemented using various serverless technologies, including Logic Apps, Azure Functions, Azure Storage Queues, and Azure Blob storage. When visiting the e-commerce website, customers are presented with offers that are served from the Offers REST API hosted within an API App. Orders are submitted by customers via the e-commerce website. Credit card validation is part of the checkout process and uses a third-party payment gateway. Once authorized and payment is captured, the order data is written to the orders Azure SQL Database, and the order details are sent to a processing queue. The Logic App is trigger by items being added to the queue. The Logic App triggers an Azure Function to create PDF receipts for customer purchases. Customers are notified via SMS as their order is processed using the [Twilio](https://www.twilio.com/) connector integrated into the Logic App.
+
+> **Note**: The above solution is only one of many possible, viable approaches.
+
+1. Can you identify the PaaS services used in the proposed solution? Are there any IaaS services? Are there any serverless components? Why do you think the proposed architecture favors PaaS over IaaS for this customer?
 
 *Notifications*
 
-1. How would you recommend CSLA manage notifying customers that their order has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
+1. Based on the proposed solution architecture, what services are being recommended for CSLA to manage notifying customers that their order has been processed? Are these IaaS, PaaS, or SaaS services?
 
 *Offers service*
 
-1. Would you propose Contoso use the Azure App Service API app to meet their requirements for the Offers service?
+1. How are offers being served to the e-commerce website? What service is being used to enable this functionality?
 
 *Geo-resiliency*
 
-1. How would you implement high availability for the orders database to guard against regional data center outages? Be specific on how you would configure SQL Database.
+1. What is meant by high availability?
 
-2. How long would a failover take, and how much data could be lost, in terms of time?
+2. How does the solution implement high availability for the orders database to guard against regional data center outages?
 
 *Access control*
 
-1. With respect to managing access to the call center website, explain how you would recommend Contoso implement a solution that meets their requirements. Be specific about both the implementation and the process you would use to gain Contoso's acceptance of the proposed solution.
+1. Access control is authentication and authorization. What does each of those mean?
+
+2. For managing access to the call center website, explain how the proposed solution handles meeting Contoso's requirements around authentication and authorization.
 
 *Enabling PCI compliance*
 
-1. To maintain PCI compliance for the e-commerce website, a Microsoft CSA has recommended deploying the Web App into an Azure App Service Environments. Explain how using Azure App Service Environments could address the PCI requirements?
+1. Broadly speaking, what does it mean for a solution to be PCI compliant?
+
+2. To maintain PCI compliance for the e-commerce website, the proposed solution recommends deploying the Web App into an Azure App Service Environment. The CSA explained that the purpose of using an ASE is to restrict where data can go from the website. Why do you think this helps to make the solution PCI compliant?
+
+### Address customer objections
+
+As a team, ensure you have addressed all of the customer objections listed above.
 
 **Prepare**
 

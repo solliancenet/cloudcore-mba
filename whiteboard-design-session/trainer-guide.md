@@ -33,6 +33,7 @@ Microsoft and the trademarks listed at <https://www.microsoft.com/en-us/legal/in
     - [Step 2: Design a proof of concept solution](#step-2-design-a-proof-of-concept-solution)
       - [Business needs](#business-needs)
       - [Design](#design)
+      - [Address customer objections](#address-customer-objections)
     - [Step 3: Present the solution](#step-3-present-the-solution-1)
   - [Additional references](#additional-references)
 - [Modern cloud apps whiteboard design session trainer guide](#modern-cloud-apps-whiteboard-design-session-trainer-guide)
@@ -219,29 +220,45 @@ Directions: With all participants at your table, respond to the following questi
 
 *High-level architecture*
 
-1. Without getting into the details, diagram your initial vision for handling the top-level requirements for the e-commerce website, call center website, and inventory lookup process. You will refine this diagram as you proceed.
+Microsoft CSAs have provided the following high-level solution architecture diagram. Take some time to review the diagram and associated description before moving on to the questions below.
+
+![A diagram that depicts the various Azure PaaS services for the solution. Azure AD Org is used for authentication to the call center app. Azure AD B2C for authentication is used for authentication to the client app. SQL Database for the backend customer data. Azure App Services for the web and API apps. Order processing includes using Functions, Logic Apps, Queues, and Storage. Azure App Insights provides telemetry capture capabilities.](media/solution-architecture.png "Solution Architecture Diagram")
+
+From a high-level, the customer's e-commerce and call center websites are hosted using Web Apps. The App Services are inside of an App Service Environment, which provides the necessary controls to ensure PCI compliance. Each of the public websites is secured using Azure Active Directory (Azure AD). The Offers and Payment Gateway APIs are running in API Apps. Order processing is implemented using various serverless technologies, including Logic Apps, Azure Functions, Azure Storage Queues, and Azure Blob storage. When visiting the e-commerce website, customers are presented with offers that are served from the Offers REST API hosted within an API App. Orders are submitted by customers via the e-commerce website. Credit card validation is part of the checkout process and uses a third-party payment gateway. Once authorized and payment is captured, the order data is written to the orders Azure SQL Database, and the order details are sent to a processing queue. The Logic App is trigger by items being added to the queue. The Logic App triggers an Azure Function to create PDF receipts for customer purchases. Customers are notified via SMS as their order is processed using the [Twilio](https://www.twilio.com/) connector integrated into the Logic App.
+
+> **Note**: The above solution is only one of many possible, viable approaches.
+
+1. Can you identify the PaaS services used in the proposed solution? Are there any IaaS services? Are there any serverless components? Why do you think the proposed architecture favors PaaS over IaaS for this customer?
 
 *Notifications*
 
-1. How would you recommend CSLA manage notifying customers that their order has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
+1. Based on the proposed solution architecture, what services are being recommended for CSLA to manage notifying customers that their order has been processed? Are these IaaS, PaaS, or SaaS services?
 
 *Offers service*
 
-1. Would you propose Contoso use the Azure App Service API app to meet their requirements for the Offers service?
+1. How are offers being served to the e-commerce website? What service is being used to enable this functionality?
 
 *Geo-resiliency*
 
-1. How would you implement high availability for the orders database to guard against regional data center outages? Be specific on how you would configure SQL Database.
+1. What is meant by high availability?
 
-2. How long would a failover take, and how much data could be lost, in terms of time?
+2. How does the solution implement high availability for the orders database to guard against regional data center outages?
 
 *Access control*
 
-1. With respect to managing access to the call center website, explain how you would recommend Contoso implement a solution that meets their requirements. Be specific about both the implementation and the process you would use to gain Contoso's acceptance of the proposed solution.
+1. Access control is authentication and authorization. What does each of those mean?
+
+2. For managing access to the call center website, explain how the proposed solution handles meeting Contoso's requirements around authentication and authorization.
 
 *Enabling PCI compliance*
 
-1. To maintain PCI compliance for the e-commerce website, a Microsoft CSA has recommended deploying the Web App into an Azure App Service Environments. Explain how using Azure App Service Environments could address the PCI requirements?
+1. Broadly speaking, what does it mean for a solution to be PCI compliant?
+
+2. To maintain PCI compliance for the e-commerce website, the proposed solution recommends deploying the Web App into an Azure App Service Environment. The CSA explained that the purpose of using an ASE is to restrict where data can go from the website. Why do you think this helps to make the solution PCI compliant?
+
+#### Address customer objections
+
+As a team, ensure you have addressed all of the customer objections listed above.
 
 **Prepare**
 
@@ -327,59 +344,70 @@ The primary audience are the business and technology decision makers. Usually we
 
 *High-level architecture*
 
-1. Without getting into the details, (the following sections will address the details), diagram your initial vision for handling the top-level requirements for the e-commerce website, call center website, and inventory lookup process. You will refine this diagram as you proceed.
-
-    The Contoso Sports League Association (CSLA) was motivated to move its solution to Azure. After analyzing their requirements across the e-commerce, inventory, and customer support apps, they built their solution from the following high-level designs.
-
-    They decided on a solution that at a high level appears as follows:
+1. Can you identify the PaaS services used in the proposed solution? Are there any IaaS services? Are there any serverless components? Why do you think the proposed architecture favors PaaS over IaaS for this customer?
 
     ![A diagram that depicts the various Azure PaaS services for the solution. Azure AD Org is used for authentication to the call center app. Azure AD B2C for authentication is used for authentication to the client app. SQL Database for the backend customer data. Azure App Services for the web and API apps. Order processing includes using Functions, Logic Apps, Queues, and Storage. Azure App Insights provides telemetry capture capabilities.](media/solution-architecture.png "Solution Architecture Diagram")
 
-    From a high-level, they have Web Apps hosting the e-commerce and call center websites, API Apps hosting web services, and Logic Apps hosting integration with SMS. Azure Traffic Manager handles routing to the appropriate region for high availability. The Web and API Apps are hosted within an Internal Load Balanced (ILB) App Service Environment (ASE). The ASE enables them to take advantage of network security groups to lock down inbound and outbound communication to the App Services it hosts. A Web Application Firewall (WAF) provided by an Azure App Gateway is hosted in an isolated subnet secured by network security groups. Internet traffic flows through the WAF to the e-commerce website (hosted within the ASE), which only allows inbound traffic from the WAF. When customers visit the website, they see offers that come from the Offers Service REST API hosted within an API App. Orders come in from customers via the publicly accessible endpoint of the e-commerce website. Credit card validation is part of the checkout process, using a third-party payment gateway. Once authorized and payment is captured, the order data is written to the orders Azure SQL Database, and the inventory lookup message is sent to the Inventory Lookup queue. An Azure Function hosts the process of creating PDF receipts for customer purchases. Customers are notified via SMS as their order is processed. This process involves a process running in a Logic App that integrates the SQL DB with a third-party solution for sending SMS text messages.
+    The breakdown of services in the proposed solution is as follows:
 
-    Inventory lookup requests are queued from the e-commerce website to the queue in Azure Storage queues. The on-premises inventory app reads from this queue to kick off its internal lookup processes and writes the status back to the orders database.
+    - PaaS
+      - Azure App Services
+        - Web Apps (e-commerce and call center website)
+        - API App (Offers REST API)
+      - Azure SQL Database
+    - Serverless
+      - Logic Apps
+      - Azure Storage Queues
+      - Azure Blob storage
+      - Azure Function App
+    - IaaS
+      - There are no IaaS components of the proposed architecture.
 
-    Call center operators access the call center website, which, owing to the network security groups configured, is only available across the virtual private network (VPN) connection.
-
-    > **Note**: The preferred solution is only one of many possible, viable approaches.
+    The customer stated a desire to move away from infrastructure management, and expressed interest in learning more about how PaaS services can help this accomplish this. The proposed solution achieves this goal, while also providing enhanced capabilities through the use of serverless compute resources.
 
 *Notifications*
 
-1. How would you recommend CSLA manage notifying customers that their order has been processed? Are there specific Azure services that can be used? Include details on how this would be implemented and integrated into the proposed solution for CSLA.
+1. Based on the proposed solution architecture, what services are being recommended for CSLA to manage notifying customers that their order has been processed? Are these IaaS, PaaS, or SaaS services?
 
-    Contoso can implement a Logic App to notify customers of their order status.
+    The notification solution leverages multiple Azure PaaS services. Azure Storage Queues are used to store messages about new orders. These orders contain a flag indicating whether the customer opted to receive SMS notifications. A Logic App is configured with a queue trigger. Every time a new order is added to the queue, a Logic App run is triggered. The Logic App checks to see if the user requested notifications. If so, it uses a Twilio connector to perform an action that sends the SMS message to the phone number provided by the customer.
 
-    The Logic App would include a frequency trigger to execute a stored procedure at an interval that will identify orders that should receive SMS notifications and update them as they are processed.
-
-    A Twilio connector could act as the action to perform that sends the SMS message when the frequency trigger executes the stored procedure. CSLA would sign up for a Twilio account to get an API key. Then they would provision a Twilio connector within the logic app, and add the credentials. Then CSLA would select a Send Message action using data provided in the result set from the stored procedure, specifically the customer's phone number and their first name to include in the message, "Hello Satya, your Contoso Sports order has shipped!"
+    Twilio is a third-party service, so CSLA would need to sign up for an account and configure the Logic App connector with their Twilio API key.
 
 *Offers service*
 
-1. Would you propose Contoso use the Azure App Service API app to meet their requirements for the Offers service?
+1. How are offers being served to the e-commerce website? What service is being used to enable this functionality?
 
-    Contoso could meet its requirement of scaling the Offers API independently from the main website by separating it from the website project into its own Web API project and deploying that project to an Azure App Service API App.
+    Offers are being served to the e-commerce website via a REST API. The Offers REST API is hosted within an App Service API App. This solution provides the requested capability of being able to scale independently from the main website. In code, the the website and Web API projects are separated. This allows them to be deployed independently and removes any dependencies between the projects.
 
 *Geo-resiliency*
 
-1. How would you implement high availability for the orders database to guard against regional data center outages? Be specific on how you would configure SQL Database and Azure Storage.
+1. What is meant by high availability?
+
+    High availability refers to systems that are durable and likely to operate continuously without failure for a long time. The term implies that parts of a system have been fully tested and, in many cases, that there are accommodations for failure in the form of redundant components.
+
+2. How does the solution implement high availability for the orders database to guard against regional data center outages?
 
     Azure SQL Database auto-failover groups (in-preview) is a SQL Database feature designed to automatically manage geo-replication relationship, connectivity, and failover at scale. With it, the customers gain the ability to automatically recover multiple related databases in the secondary region after catastrophic regional failures or other unplanned events that result in full or partial loss of the SQL Database service's availability in the primary region. Additionally, they can use the readable secondary databases to offload read-only workloads. Because auto-failover groups involve multiple databases, they must be configured on the primary server. Both primary and secondary servers must be in the same subscription. Auto-failover groups support replication of all databases in the group to only one secondary server in a different region. Active geo-replication, without auto-failover groups, allows up to four secondaries in any region.
 
     Finally, deploy copies of the App Services to the backup regions. You will have to consider a process of how you update these instances when the primary region gets updates. These can initially be deployed to resources with minimal scale-out instance sizes and increased when a failover event occurs.
 
-2. How long would a failover take, and how much data could be lost, in terms of time?
-
-    The amount of time a failover takes is the Recovery Time Objective (RTO), and the amount of data loss that might transpire due to any replication latency is the Recovery Point Objective (RPO).
-
-    For SQL Database on the Premium Tier, the RTO is less than 30 seconds, and the RPO is less than 5 seconds.
-
-    For Azure Storage, the RTO is about 24 hours, and the RPO is typically less than 15 minutes, although this has no explicit SLA. Given the potentially long RTO and RPO for Azure Storage, Contoso might consider using RA-GRS storage, and when a failover happens use the RA-GRS for read and a separate storage account for the writing of new files.
-
 *Access control*
 
-1. With respect to managing access to the call center website, explain how you would recommend Contoso implement a solution that meets their requirements. Be specific about both the implementation and the process you would use to gain Contoso's acceptance of the proposed solution.
+1. Access control is authentication and authorization. What does each of those mean?
 
-    Contoso could capitalize on Azure Active Directory to manage the user accounts for the call center staff. They would need to provision an Azure Active Directory tenant in the Premium Tier to provide the branding. Once they have the tenant, they can create login screen branding by using the management portal.
+    Authentication is the process of confirming your identity, or verifying who you are.
+
+    Authorization means being allowed to access the system, or the process of verifying what you have access to.
+
+2. For managing access to the call center website, explain how the proposed solution handles meeting Contoso's requirements around authentication and authorization.
+
+    Using Azure Active Directory to manage the user accounts for the call center staff provides a mechanism to secure user access.
+
+    Active Directory user authentication confirms the identity of any user trying to log on to a domain. After confirming the identity of the user, they are allowed access to resources.
+
+    Active Directory user authorization secures resources from unauthorized access. After user authentication process, the type of access actually granted is determined by what user rights are assigned to the user and what permissions are attached to the objects the user wishes to access. Each object has Access Control Lists associated with it.
+
+    They would need to provision an Azure Active Directory tenant in the Premium Tier to provide the branding. Once they have the tenant, they can create login screen branding by using the management portal.
 
     ![Use the Azure Active Directory Status section to configure custom branding for your company.](media/image4.png "Status section")
 
@@ -401,7 +429,11 @@ The primary audience are the business and technology decision makers. Usually we
 
 *Enabling PCI compliance*
 
-1. To maintain PCI compliance for the e-commerce website, a Microsoft CSA has recommended deploying the Web App into an Azure App Service Environments. Explain how using Azure App Service Environments could address the PCI requirements?
+1. Broadly speaking, what does it mean for a solution to be PCI compliant?
+
+    A PCI compliant solution implies that the precautions specified by the Payment Card Industry Data Security Standard (PCI DSS) for the protection of payment information have been met. PCI DSS provides steps that all merchants who process card payments, store or transmit credit, debit, or prepaid card information need to follow to provide secure transactions. The main purpose of the PCI DSS is to reduce the risk of debit and credit card data loss.
+
+2. To maintain PCI compliance for the e-commerce website, the proposed solution recommends deploying the Web App into an Azure App Service Environment. The CSA explained that the purpose of using an ASE is to restrict where data can go from the website. Why do you think this helps to make the solution PCI compliant?
 
     While web apps are certified as PCI compliant, they are not immediately PCI compliant when used by the customer. The PCI requirements 1.2.1, 1.3.3, and 1.3.5 require restricting outbound access to only that which is necessary for the cardholder environment. In the case of CSLA, it means that the only outbound communication allowed should be to Azure (for monitoring) and to the payment gateway. Web apps in the Standard Tier have no mechanism for restricting the outbound traffic.
 
